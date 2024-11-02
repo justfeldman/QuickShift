@@ -64,6 +64,8 @@
         input[type="text"],
         input[type="email"],
         input[type="tel"],
+        input[type="password"],
+        input[type="date"],
         textarea,
         input[type="file"],
         select {
@@ -121,6 +123,9 @@
 
                 <label for="phone">Phone Number:</label>
                 <input type="tel" id="phone" name="phone" required>
+
+                <label for="profile-picture">Profile Picture:</label>
+                <input type="file" id="profile-picture" name="profile_picture" accept="image/*">
             </div>
 
             <!-- Work Experience Section -->
@@ -157,6 +162,107 @@
 
                 <label for="reference-relationship">Relationship:</label>
                 <input type="text" id="reference-relationship" name="reference_relationship" placeholder="e.g., Manager, Supervisor" required>
+            </div>
+
+            <!-- Availability Section -->
+            <div class="form-section">
+                <h2>Availability</h2>
+                <label for="days-available">Days Available:</label>
+                <select id="days-available" name="days_available" multiple required>
+                    <option value="monday">Monday</option>
+                    <option value="tuesday">Tuesday</option>
+                    <option value="wednesday">Wednesday</option>
+                    <option value="thursday">Thursday</option>
+                    <option value="friday">Friday</option>
+                    <option value="saturday">Saturday</option>
+                    <option value="sunday">Sunday</option>
+                </select>
+
+                <label for="time-of-day">Preferred Time of Day:</label>
+                <select id="time-of-day" name="time_of_day" required>
+                    <option value="">Select Time of Day</option>
+                    <option value="morning">Morning</option>
+                    <option value="afternoon">Afternoon</option>
+                    <option value="evening">Evening</option>
+                </select>
+
+                <label for="immediate-availability">Available for Immediate Start:</label>
+                <input type="checkbox" id="immediate-availability" name="immediate_availability">
+            </div>
+
+            <!-- Preferred Work Location Section -->
+            <div class="form-section">
+                <h2>Preferred Work Location</h2>
+                <label for="preferred-location">Preferred Neighborhood/Region:</label>
+                <input type="text" id="preferred-location" name="preferred_location">
+            </div>
+
+            <!-- Certifications and Skills Section -->
+            <div class="form-section">
+                <h2>Certifications and Special Skills</h2>
+                <label for="certifications">Certifications:</label>
+                <input type="text" id="certifications" name="certifications" placeholder="e.g., Food Safety, Bartending License">
+
+                <label for="certification-upload">Upload Certification Documents:</label>
+                <input type="file" id="certification-upload" name="certification_upload" accept=".pdf,.jpg,.jpeg,.png">
+
+                <label for="skills">Special Skills:</label>
+                <select id="skills" name="skills" multiple>
+                    <option value="wine_pairing">Wine Pairing</option>
+                    <option value="mixology">Mixology</option>
+                    <option value="customer_service">Customer Service</option>
+                    <option value="food_preparation">Food Preparation</option>
+                </select>
+            </div>
+
+            <!-- Languages Spoken Section -->
+            <div class="form-section">
+                <h2>Languages Spoken</h2>
+                <label for="languages">Languages Spoken:</label>
+                <input type="text" id="languages" name="languages" placeholder="e.g., English, Spanish, French">
+            </div>
+
+            <!-- Emergency Contact Information Section -->
+            <div class="form-section">
+                <h2>Emergency Contact Information</h2>
+                <label for="emergency-contact-name">Emergency Contact Name:</label>
+                <input type="text" id="emergency-contact-name" name="emergency_contact_name" required>
+
+                <label for="emergency-contact-phone">Emergency Contact Phone Number:</label>
+                <input type="tel" id="emergency-contact-phone" name="emergency_contact_phone" required>
+
+                <label for="emergency-contact-relationship">Relationship:</label>
+                <input type="text" id="emergency-contact-relationship" name="emergency_contact_relationship" placeholder="e.g., Parent, Partner" required>
+            </div>
+
+            <!-- Account Security Section -->
+            <div class="form-section">
+                <h2>Account Security</h2>
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+
+                <label for="confirm-password">Confirm Password:</label>
+                <input type="password" id="confirm-password" name="confirm_password" required>
+            </div>
+
+            <!-- Transportation Method Section -->
+            <div class="form-section">
+                <h2>Transportation Method</h2>
+                <label for="transportation-method">Primary Mode of Transportation:</label>
+                <select id="transportation-method" name="transportation_method" required>
+                    <option value="">Select Transportation Method</option>
+                    <option value="public_transport">Public Transport</option>
+                    <option value="car">Car</option>
+                    <option value="bicycle">Bicycle</option>
+                    <option value="walking">Walking</option>
+                </select>
+            </div>
+
+            <!-- Legal Age Verification Section -->
+            <div class="form-section">
+                <h2>Legal Age Verification</h2>
+                <label for="date-of-birth">Date of Birth:</label>
+                <input type="date" id="date-of-birth" name="date_of_birth" required>
             </div>
 
             <!-- Paystub Upload Section -->
