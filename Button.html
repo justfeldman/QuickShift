@@ -37,8 +37,13 @@
         }
 
         .logo {
-            font-size: 1.5em;
-            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo img {
+            height: 40px;
+            margin-right: 10px;
         }
 
         .staffing-container {
@@ -79,7 +84,10 @@
 </head>
 <body>
     <header class="navbar">
-        <div class="logo">QuickShift</div>
+        <div class="logo">
+            <img src="https://github.com/username/repository/raw/main/Logo.png" alt="QuickShift Logo">
+            QuickShift
+        </div>
         <nav>
             <a href="#home">Home</a>
             <a href="#services">Services</a>
