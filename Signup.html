@@ -14,11 +14,11 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
         }
 
         .navbar {
-            position: absolute;
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
@@ -42,10 +42,12 @@
 
         .signup-container {
             background-color: rgba(255, 255, 255, 0.1);
-            padding: 30px;
+            padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
-            width: 400px;
+            width: 90%;
+            max-width: 400px;
+            margin-top: 80px;
         }
 
         .form-section {
@@ -65,7 +67,7 @@
         textarea,
         input[type="file"] {
             width: 100%;
-            padding: 12px;
+            padding: 10px;
             margin: 8px 0;
             border: 1px solid #ccc;
             border-radius: 8px;
