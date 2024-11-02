@@ -65,7 +65,8 @@
         input[type="email"],
         input[type="tel"],
         textarea,
-        input[type="file"] {
+        input[type="file"],
+        select {
             width: 100%;
             padding: 10px;
             margin: 8px 0;
@@ -75,7 +76,7 @@
             transition: border 0.3s;
         }
 
-        input:focus {
+        input:focus, select:focus, textarea:focus {
             border: 2px solid #ff4081;
         }
 
@@ -133,6 +134,29 @@
 
                 <label for="duration">Duration of Employment:</label>
                 <input type="text" id="duration" name="duration" placeholder="e.g., 6 months, 1 year" required>
+
+                <label for="restaurant-type">Type of Restaurant Experience:</label>
+                <select id="restaurant-type" name="restaurant_type" required>
+                    <option value="">Select Experience Type</option>
+                    <option value="fine_dining">Fine Dining</option>
+                    <option value="casual_dining">Casual Dining</option>
+                    <option value="fast_food">Fast Food</option>
+                    <option value="catering">Catering Services</option>
+                    <option value="bar_pub">Bar/Pub</option>
+                </select>
+            </div>
+
+            <!-- References Section -->
+            <div class="form-section">
+                <h2>References</h2>
+                <label for="reference-name">Reference Name:</label>
+                <input type="text" id="reference-name" name="reference_name" required>
+
+                <label for="reference-contact">Reference Contact Information:</label>
+                <input type="text" id="reference-contact" name="reference_contact" placeholder="Phone or Email" required>
+
+                <label for="reference-relationship">Relationship:</label>
+                <input type="text" id="reference-relationship" name="reference_relationship" placeholder="e.g., Manager, Supervisor" required>
             </div>
 
             <!-- Paystub Upload Section -->
