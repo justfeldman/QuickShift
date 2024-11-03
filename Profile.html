@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Page - QuickShift</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(to bottom, #8e2de2, #4a00e0);
+            font-family: 'Montserrat', sans-serif;
+            color: #fff;
+        }
+
+        .profile-container {
+            width: 350px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .profile-picture {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 4px solid #fff;
+            margin-bottom: 15px;
+        }
+
+        .profile-picture img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-name {
+            font-size: 1.8em;
+            margin: 10px 0;
+        }
+
+        .profile-role {
+            font-size: 1.2em;
+            color: #ffeb3b;
+        }
+
+        .profile-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .profile-button {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .profile-button:hover {
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        .profile-button img {
+            width: 40px;
+            height: 40px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="profile-container">
+        <!-- Profile Picture -->
+        <div class="profile-picture">
+            <img src="profile.jpg" alt="Jack Anderson">
+        </div>
+        <!-- Name and Role -->
+        <div class="profile-name">Jack Anderson</div>
+        <div class="profile-role">Server</div>
+        <!-- Profile Buttons -->
+        <div class="profile-buttons">
+            <div class="profile-button" onclick="window.location.href='profile.html'">
+                <img src="https://img.icons8.com/ios-filled/50/ffffff/user.png" alt="Profile Icon">
+                Profile
+            </div>
+            <div class="profile-button" onclick="window.location.href='star-rating.html'">
+                <img src="https://img.icons8.com/ios-filled/50/ffffff/star.png" alt="Star Rating Icon">
+                Star Rating
+            </div>
+            <div class="profile-button" onclick="window.location.href='reviews.html'">
+                <img src="https://img.icons8.com/ios-filled/50/ffffff/like.png" alt="Reviews Icon">
+                Reviews
+            </div>
+            <div class="profile-button" onclick="window.location.href='scheduling.html'">
+                <img src="https://img.icons8.com/ios-filled/50/ffffff/calendar.png" alt="Scheduling Icon">
+                Scheduling
+            </div>
+        </div>
+    </div>
+</body>
+</html>
