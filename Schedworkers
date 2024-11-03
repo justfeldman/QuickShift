@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickShift - Scheduling Workers</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Montserrat', sans-serif;
+            background-color: #f7f7f7;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .header h1 {
+            font-size: 1.8em;
+            color: #333;
+        }
+
+        .days-header {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+            background-color: #f0f0f0;
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .day {
+            font-weight: bold;
+            font-size: 0.9em;
+            color: #888;
+        }
+
+        .active-day {
+            color: #4a00e0;
+        }
+
+        .available-servers {
+            margin-top: 30px;
+        }
+
+        .server {
+            display: flex;
+            align-items: center;
+            background-color: #fff;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 15px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .server img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin-right: 15px;
+        }
+
+        .server-info {
+            flex: 1;
+        }
+
+        .server-name {
+            font-size: 1.2em;
+            color: #333;
+        }
+
+        .server-role {
+            font-size: 0.9em;
+            color: #777;
+        }
+
+        .server-rating {
+            font-size: 0.9em;
+            color: #ffeb3b;
+        }
+
+        .time-slots {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .time-slot {
+            padding: 10px 15px;
+            border: 1px solid #4a00e0;
+            color: #4a00e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .time-slot:hover {
+            background-color: #4a00e0;
+            color: #fff;
+        }
+
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            justify-content: space-around;
+            padding: 15px;
+            background-color: #fff;
+            border-top: 1px solid #ddd;
+        }
+
+        .nav-bar a {
+            text-align: center;
+            font-size: 0.9em;
+            text-decoration: none;
+            color: #4a00e0;
+        }
+
+        .nav-bar a img {
+            display: block;
+            margin: auto;
+            width: 25px;
+            height: 25px;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>March 2024</h1>
+        </div>
+
+        <div class="days-header">
+            <span class="day">MON 13</span>
+            <span class="day">TUE 14</span>
+            <span class="day">WED 15</span>
+            <span class="day active-day">THU 16</span>
+            <span class="day">FRI 17</span>
+            <span class="day">SAT 18</span>
+            <span class="day">SUN 19</span>
+        </div>
+
+        <div class="available-servers">
+            <!-- Server #1 -->
+            <div class="server">
+                <img src="jack_anderson.jpg" alt="Jack Anderson">
+                <div class="server-info">
+                    <div class="server-name">Jack Anderson</div>
+                    <div class="server-role">Server</div>
+                    <div class="server-rating">⭐ 4.9 (37 Reviews)</div>
+                    <div class="time-slots">
+                        <div class="time-slot">09:00</div>
+                        <div class="time-slot">10:00</div>
+                        <div class="time-slot">11:00</div>
+                        <div class="time-slot">12:00</div>
+                        <div class="time-slot">13:00</div>
+                        <div class="time-slot">14:00</div>
+                        <div class="time-slot">15:00</div>
+                        <div class="time-slot">16:00</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Server #2 -->
+            <div class="server">
+                <img src="jennifer_mercer.jpg" alt="Jennifer Mercer">
+                <div class="server-info">
+                    <div class="server-name">Jennifer Mercer</div>
+                    <div class="server-role">Server</div>
+                    <div class="server-rating">⭐ 4.7 (26 Reviews)</div>
+                    <div class="time-slots">
+                        <div class="time-slot">09:30</div>
+                        <div class="time-slot">10:30</div>
+                        <div class="time-slot">11:30</div>
+                        <div class="time-slot">12:30</div>
+                        <div class="time-slot">13:30</div>
+                        <div class="time-slot">14:30</div>
+                        <div class="time-slot">15:30</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation Bar -->
+    <div class="nav-bar">
+        <a href="home.html">
+            <img src="https://img.icons8.com/ios-filled/50/4a00e0/home.png" alt="Home Icon">
+            Home
+        </a>
+        <a href="schedule.html">
+            <img src="https://img.icons8.com/ios-filled/50/4a00e0/calendar.png" alt="Schedule Icon">
+            Schedule
+        </a>
+        <a href="record.html">
+            <img src="https://img.icons8.com/ios-filled/50/4a00e0/coins.png" alt="Record Icon">
+            Record
+        </a>
+        <a href="profile.html">
+            <img src="https://img.icons8.com/ios-filled/50/4a00e0/user.png" alt="Profile Icon">
+            Profile
+        </a>
+    </div>
+</body>
+</html>
