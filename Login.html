@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickShift Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(to bottom, #8e2de2, #4a00e0);
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .login-container {
+            width: 300px;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .logo {
+            width: 100px;
+            height: auto;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #FFB400;
+            font-size: 24px;
+            margin: 0;
+        }
+
+        p {
+            font-size: 14px;
+            color: #555;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(to right, #8e2de2, #4a00e0);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(to right, #4a00e0, #8e2de2);
+        }
+
+        .btn-secondary {
+            width: 100%;
+            padding: 12px;
+            background: #e0e0e0;
+            color: #333;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .forgot-password {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 15px;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <img src="logo.png" alt="QuickShift Logo" class="logo">
+        <h1>QuickShift</h1>
+        <p>FIND THE PERFECT FIT, FAST.</p>
+        <input type="text" class="input-field" placeholder="Email or Phone">
+        <input type="password" class="input-field" placeholder="Password">
+        <a href="#" class="forgot-password">Forgot Password?</a>
+        <button class="btn-primary">Login</button>
+        <p>or</p>
+        <button class="btn-secondary">Create an account</button>
+    </div>
+</body>
+</html>
