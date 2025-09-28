@@ -1,1 +1,403 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>QuickShift – Single‑File MVP</title>
+  <style>
+    :root{--bg:#0f172a;--card:#111827;--muted:#1f2937;--ink:#e5e7eb;--ink2:#9ca3af;--pri:#22d3ee;--ok:#34d399;--warn:#f59e0b;--bad:#ef4444}
+    *{box-sizing:border-box}html,body{height:100%}body{margin:0;font:15px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Helvetica,Arial,sans-serif;background:linear-gradient(180deg,#0b1229,#0f172a 20%);}a{color:inherit}
+    .app{max-width:1100px;margin:24px auto;padding:16px}
+    header{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:16px}
+    .logo{display:flex;gap:10px;align-items:center}
+    .logo div{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--pri),#3b82f6)}
+    h1{color:#fff;margin:0;font-size:20px}
+    .tabs{display:flex;gap:8px;flex-wrap:wrap}
+    .tab{padding:8px 12px;border-radius:10px;background:#0b1022;color:#c7d2fe;border:1px solid #1f2650;cursor:pointer}
+    .tab.active{background:linear-gradient(180deg,#1f284b,#0f1732);border-color:#2f3c7a}
+    .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:12px}
+    .card{grid-column:span 12;background:linear-gradient(180deg,#0f172a,#0b132a);border:1px solid #1e233f;border-radius:16px;padding:14px;color:var(--ink);box-shadow:0 10px 30px rgba(0,0,0,.35)}
+    @media(min-width:900px){.card.half{grid-column:span 6}}
+    label{display:block;color:#cbd5e1;margin:10px 0 6px}
+    input,select,textarea{width:100%;padding:10px;border-radius:10px;border:1px solid #2a335d;background:#0b1022;color:#fff}
+    .row{display:flex;gap:10px;flex-wrap:wrap}
+    .row>*{flex:1}
+    button{padding:10px 14px;border-radius:10px;border:1px solid #334155;background:#0b1022;color:#e2e8f0;cursor:pointer}
+    button.primary{background:linear-gradient(135deg,#22d3ee,#3b82f6);border:none;color:#06111a;font-weight:600}
+    .pill{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;border:1px solid #27314f;background:#0b1022;color:#c7d2fe;margin:2px 4px 0 0;font-size:12px}
+    .muted{color:var(--ink2)}
+    .list{display:flex;flex-direction:column;gap:10px}
+    .item{padding:10px;border:1px solid #1f2a50;border-radius:12px;background:#0a1024}
+    .chip{font-size:11px;padding:2px 8px;border-radius:999px;border:1px solid #1f2a50;color:#a5b4fc}
+    .right{margin-left:auto}
+    .inline{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .score{font-weight:700}
+    .kpi{display:flex;gap:14px;flex-wrap:wrap}
+    .kpi .item{background:#0b1229}
+    small{color:#9aa1b6}
+    .divider{height:1px;background:#1e2350;margin:10px 0}
+    .danger{color:var(--bad)}
+  </style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="logo"><div></div><h1>QuickShift – on‑demand FOH staffing</h1></div>
+    <nav class="tabs" id="tabs"></nav>
+  </header>
+
+  <section class="grid" id="view"></section>
+</div>
+
+<script>
+/***** Minimal in‑browser data store (localStorage) *****/
+const store = {
+  key: 'quickshift.v1',
+  init(){ if(!localStorage.getItem(this.key)){ localStorage.setItem(this.key, JSON.stringify(seed())); } },
+  read(){ return JSON.parse(localStorage.getItem(this.key)); },
+  write(data){ localStorage.setItem(this.key, JSON.stringify(data)); render(); }
+};
+
+/***** Domain types *****/
+// Worker: {id,name,roleTags[],bucket:{reliability,communication,work,personality},pos[],distanceKm,rate,headshot?,bio,preferredTraits[],availability[],ratingCount}
+// Restaurant: {id,name,suburb,needs[],notes}
+// Shift: {id,restaurantId,role,date,start,end,wage,personality[],pos[],transport:boolean,status:'open|filled|done',workerId?}
+
+/***** Utilities *****/
+const $ = sel => document.querySelector(sel);
+const $$ = sel => Array.from(document.querySelectorAll(sel));
+const uid = () => Math.random().toString(36).slice(2,10);
+const fmt = {
+  dt(d){ return new Date(d).toLocaleString([], {dateStyle:'medium', timeStyle:'short'}); },
+  time(s){ return s; },
+  money(n){ return `$${Number(n).toFixed(2)}`; }
+};
+
+/***** Seed data *****/
+function seed(){
+  const restaurants=[
+    {id:uid(),name:'La Cucina',suburb:'Double Bay',needs:['Server','Bartender'],notes:'Busy weekends'},
+    {id:uid(),name:"Jack Astor's",suburb:'Toronto',needs:['Server'],notes:'Student crowd'},
+    {id:uid(),name:'Bondi Social',suburb:'Bondi',needs:['Host','Server'],notes:'Beachfront, high volume'}
+  ];
+  const workers=[
+    w('Ava Li',['Server'],{reliability:4.6,communication:4.7,work:4.5,personality:4.8},['Square','Lightspeed'],3,28,['friendly','calm'],['Fri PM','Sat PM']),
+    w('Noah Kim',['Bartender','Server'],{reliability:4.4,communication:4.5,work:4.6,personality:4.2},['Kounta'],8,30,['outgoing'],['Thu PM','Sat PM']),
+    w('Mia Santos',['Host'],{reliability:4.9,communication:4.8,work:4.2,personality:4.7},['Lightspeed'],15,26,['calm','detail'],['Sun PM'])
+  ];
+  const shifts=[
+    s(restaurants[0].id,'Server',nextDate(1),'18:00','23:00',27,['friendly'],['Lightspeed'],true),
+    s(restaurants[2].id,'Host',nextDate(2),'17:00','22:00',25,['calm'],[],false)
+  ];
+  return {restaurants,workers,shifts,ratings:[]};
+  function w(name,roleTags,bucket,pos,distanceKm,rate,traits,availability){return {id:uid(),name,roleTags,bucket,pos,distanceKm,rate,preferredTraits:traits,availability,headshot:'',bio:'',ratingCount:5};}
+  function s(restaurantId,role,date,start,end,wage,personality,pos,transport){return {id:uid(),restaurantId,role,date,start,end,wage,personality,pos,transport,status:'open'};}
+}
+function nextDate(days){const d=new Date();d.setDate(d.getDate()+days);d.setHours(0,0,0,0);return d.toISOString();}
+
+/***** Matching *****/
+function matchScore(worker,shift,rest){
+  let score=0;
+  // role fit
+  if(worker.roleTags.includes(shift.role)) score+=20; else score-=10;
+  // POS familiarity
+  const posMatch = (shift.pos||[]).filter(p=>worker.pos.includes(p)).length; score+=posMatch*6;
+  // personality / soft traits
+  const traitMatch = (shift.personality||[]).filter(t=>worker.preferredTraits.includes(t)).length; score+=traitMatch*8;
+  // ratings (average of buckets)
+  const avg = (worker.bucket.reliability+worker.bucket.communication+worker.bucket.work+worker.bucket.personality)/4; score+=avg*3; // ~15–24
+  // distance penalty unless transport covered
+  const distPenalty = Math.max(0, worker.distanceKm-5) * (shift.transport?0.2:0.6); score-=distPenalty;
+  // wage vs worker rate
+  if(shift.wage>=worker.rate) score+=10; else score-=(worker.rate-shift.wage);
+  // restaurant loyalty bonus (future: history)
+  return Math.round(score);
+}
+
+/***** Tabs & Views *****/
+const TABS=[
+  {id:'post',label:'Post Shift (Restaurant)'},
+  {id:'match',label:'Find Matches (Manager)'},
+  {id:'worker',label:'Find Shifts (Worker)'},
+  {id:'directory',label:'Directory & Admin'}
+];
+
+function renderTabs(active='post'){
+  const el=$('#tabs'); el.innerHTML='';
+  TABS.forEach(t=>{
+    const b=document.createElement('button'); b.className='tab'+(t.id===active?' active':''); b.textContent=t.label; b.onclick=()=>render(t.id); el.appendChild(b);
+  });
+}
+
+function render(active='post'){
+  renderTabs(active);
+  const state=store.read();
+  const root=$('#view'); root.innerHTML='';
+  if(active==='post') return viewPost(state,root);
+  if(active==='match') return viewMatch(state,root);
+  if(active==='worker') return viewWorker(state,root);
+  if(active==='directory') return viewDirectory(state,root);
+}
+
+/***** View: Post Shift *****/
+function viewPost(state,root){
+  const card = html`
+    <div class="card half">
+      <h3>New Shift</h3>
+      <div class="divider"></div>
+      <div class="row">
+        <div>
+          <label>Restaurant</label>
+          <select id="ps_rest">${state.restaurants.map(r=>`<option value="${r.id}">${r.name} – ${r.suburb}</option>`).join('')}</select>
+        </div>
+        <div>
+          <label>Role</label>
+          <select id="ps_role"><option>Server</option><option>Bartender</option><option>Host</option><option>Busser</option></select>
+        </div>
+      </div>
+      <div class="row">
+        <div><label>Date</label><input type="date" id="ps_date"></div>
+        <div><label>Start</label><input type="time" id="ps_start" value="18:00"></div>
+        <div><label>End</label><input type="time" id="ps_end" value="23:00"></div>
+        <div><label>Wage ($/hr)</label><input type="number" id="ps_wage" value="27" min="15" step="1"></div>
+      </div>
+      <label>POS (comma separated)</label>
+      <input id="ps_pos" placeholder="Lightspeed, Square" />
+      <label>Soft traits requested (comma separated)</label>
+      <input id="ps_traits" placeholder="friendly, calm" />
+      <div class="inline" style="margin-top:8px">
+        <input id="ps_transport" type="checkbox"> <label for="ps_transport" style="margin:0">Cover transport for long distance</label>
+      </div>
+      <div style="margin-top:12px" class="inline">
+        <button class="primary" id="ps_submit">Post shift</button>
+        <small class="muted">Posting adds to the open pool and will appear in matching.</small>
+      </div>
+    </div>
+    <div class="card half">
+      <h3>Open Shifts</h3>
+      <div class="divider"></div>
+      <div class="list" id="open_list"></div>
+    </div>
+  `;
+  root.append(card);
+  // init values
+  const d=new Date(); const dd = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()+1).padStart(2,'0')}`; $('#ps_date').value=dd;
+  $('#ps_submit').onclick=()=>{
+    const sh={id:uid(),restaurantId:$('#ps_rest').value,role:$('#ps_role').value,date:new Date($('#ps_date').value).toISOString(),start:$('#ps_start').value,end:$('#ps_end').value,wage:Number($('#ps_wage').value),pos:splitCSV($('#ps_pos').value),personality:splitCSV($('#ps_traits').value),transport:$('#ps_transport').checked,status:'open'};
+    const data=store.read(); data.shifts.push(sh); store.write(data);
+  };
+  renderOpenList(state);
+}
+function renderOpenList(state){
+  const list=$('#open_list');
+  const rows=state.shifts.filter(s=>s.status==='open').map(s=>{
+    const r=state.restaurants.find(r=>r.id===s.restaurantId);
+    return html`<div class="item inline"><div>
+      <div><b>${r.name}</b> • ${s.role} • ${fmt.dt(s.date)} ${s.start}–${s.end} • ${fmt.money(s.wage)}/hr</div>
+      <small class="muted">POS: ${(s.pos||[]).join(', ')||'—'} • Traits: ${(s.personality||[]).join(', ')||'—'} • Transport: ${s.transport?'Yes':'No'}</small>
+    </div>
+    <span class="right inline">
+      <button onclick="fillShift('${s.id}')">Auto‑match</button>
+      <button class="danger" onclick="deleteShift('${s.id}')">Delete</button>
+    </span></div>`;
+  });
+  list.innerHTML=rows.join('')||'<small class="muted">No open shifts.</small>';
+}
+window.deleteShift = (id)=>{ const data=store.read(); data.shifts=data.shifts.filter(x=>x.id!==id); store.write(data); };
+window.fillShift = (id)=>{ const data=store.read(); const s=data.shifts.find(x=>x.id===id); const r=data.restaurants.find(y=>y.id===s.restaurantId);
+  const ranked = data.workers.map(w=>({w,score:matchScore(w,s,r)})).sort((a,b)=>b.score-a.score);
+  const top = ranked[0]; if(!top){alert('No workers available');return}
+  s.workerId=top.w.id; s.status='filled'; store.write(data);
+  alert(`Matched ${top.w.name} (score ${top.score})`);
+};
+
+/***** View: Match (Manager) *****/
+function viewMatch(state,root){
+  const open=state.shifts.filter(s=>s.status==='open');
+  const filled=state.shifts.filter(s=>s.status==='filled');
+  root.append(html`<div class="card">
+    <h3>Matching Dashboard</h3><div class="divider"></div>
+    <div class="kpi">
+      <div class="item"><b>${open.length}</b> open</div>
+      <div class="item"><b>${filled.length}</b> filled / pending</div>
+      <div class="item"><b>${state.workers.length}</b> workers</div>
+    </div>
+  </div>`);
+
+  const list = html`<div class="card"><h3>Ranked Candidates per Open Shift</h3><div class="divider"></div><div id="ranked"></div></div>`;
+  root.append(list);
+  const cont = list.querySelector('#ranked');
+  if(!open.length){ cont.innerHTML='<small class="muted">No open shifts.</small>'; return; }
+  cont.innerHTML=open.map(s=>{
+    const r=state.restaurants.find(x=>x.id===s.restaurantId);
+    const ranked = state.workers.map(w=>({w,score:matchScore(w,s,r)})).sort((a,b)=>b.score-a.score).slice(0,5);
+    return `<div class="item">
+      <div><b>${r.name}</b> • ${s.role} • ${fmt.dt(s.date)} ${s.start}–${s.end} • ${fmt.money(s.wage)}/hr • Transport: ${s.transport?'Yes':'No'}</div>
+      <div class="divider"></div>
+      ${ranked.map(({w,score})=>`<div class="inline" style="justify-content:space-between">
+        <div>
+          <div><b>${w.name}</b> <span class="chip">${w.roleTags.join(', ')}</span> <span class="chip">${w.distanceKm} km</span> <span class="chip">rate ${fmt.money(w.rate)}/h</span></div>
+          <small>POS: ${w.pos.join(', ')||'—'} • Traits: ${w.preferredTraits.join(', ')||'—'}</small>
+        </div>
+        <div class="inline">
+          <span class="pill">score <span class="score">${score}</span></span>
+          <button onclick="assign('${s.id}','${w.id}')">Assign</button>
+        </div>
+      </div>`).join('')}
+    </div>`;
+  }).join('');
+}
+window.assign=(sid,wid)=>{const data=store.read(); const s=data.shifts.find(x=>x.id===sid); s.workerId=wid; s.status='filled'; store.write(data);};
+
+/***** View: Worker *****/
+function viewWorker(state,root){
+  const available = state.shifts.filter(s=>s.status==='open');
+  root.append(html`<div class="card"><h3>Browse Shifts</h3><div class="divider"></div>
+    <div id="ws"></div></div>`);
+  const cont=$('#ws');
+  cont.innerHTML = available.map(s=>{
+    const r=state.restaurants.find(x=>x.id===s.restaurantId);
+    return `<div class="item inline" style="justify-content:space-between">
+      <div>
+        <div><b>${r.name}</b> • ${s.role} • ${fmt.dt(s.date)} ${s.start}–${s.end} • ${fmt.money(s.wage)}/hr</div>
+        <small>POS: ${(s.pos||[]).join(', ')||'—'} • Traits: ${(s.personality||[]).join(', ')||'—'} • Transport: ${s.transport?'Yes':'No'}</small>
+      </div>
+      <div class="inline">
+        <button onclick="claim('${s.id}')">Claim</button>
+      </div>
+    </div>`;
+  }).join('') || '<small class="muted">No open shifts right now.</small>';
+
+  // Filled shifts where worker can complete & rate
+  const mine = state.shifts.filter(s=>s.status==='filled');
+  root.append(html`<div class="card"><h3>My Assigned Shifts</h3><div class="divider"></div>
+    <div id="mine"></div></div>`);
+  const mineEl=$('#mine');
+  mineEl.innerHTML = mine.map(s=>{
+    const r=state.restaurants.find(x=>x.id===s.restaurantId);
+    const w = state.workers.find(w=>w.id===s.workerId) || {name:'(unassigned)'};
+    return `<div class="item">
+      <div class="inline" style="justify-content:space-between">
+        <div><b>${r.name}</b> • ${s.role} • ${fmt.dt(s.date)} ${s.start}–${s.end}</div>
+        <div class="inline"><button onclick="completeShift('${s.id}')">Mark Done + Rate</button></div>
+      </div>
+      <small class="muted">Assigned to: ${w.name}</small>
+    </div>`;
+  }).join('') || '<small class="muted">No assigned shifts.</small>';
+}
+window.claim=(sid)=>{const data=store.read(); const s=data.shifts.find(x=>x.id===sid); s.workerId = data.workers[0].id; s.status='filled'; store.write(data);};
+window.completeShift=(sid)=>{ const data=store.read(); const s=data.shifts.find(x=>x.id===sid); const r=data.restaurants.find(y=>y.id===s.restaurantId); const w=data.workers.find(z=>z.id===s.workerId);
+  modalRate({title:`Rate – ${w.name} @ ${r.name}`, onSubmit:(vals)=>{
+    // update worker buckets (simple EMA)
+    const k=.2; ['reliability','communication','work','personality'].forEach(b=>{ w.bucket[b] = (1-k)*w.bucket[b] + k*Number(vals[b]); });
+    w.ratingCount=(w.ratingCount||0)+1;
+    // optional vouch adds +0.1 to all buckets
+    if(vals.vouch){ ['reliability','communication','work','personality'].forEach(b=>{ w.bucket[b]+=0.1; }); }
+    s.status='done'; store.write(data);
+  }});
+};
+
+/***** View: Directory & Admin *****/
+function viewDirectory(state,root){
+  // Workers list + quick add
+  root.append(html`<div class="card half">
+    <h3>Workers</h3><div class="divider"></div>
+    <div class="row">
+      <div><label>Name</label><input id="wn" placeholder="Full name"></div>
+      <div><label>Roles (comma)</label><input id="wr" placeholder="Server, Bartender"></div>
+    </div>
+    <div class="row">
+      <div><label>POS (comma)</label><input id="wp" placeholder="Lightspeed, Square"></div>
+      <div><label>Traits (comma)</label><input id="wt" placeholder="friendly, calm"></div>
+    </div>
+    <div class="row">
+      <div><label>Distance (km)</label><input id="wd" type="number" value="5"></div>
+      <div><label>Rate $/h</label><input id="ww" type="number" value="27"></div>
+    </div>
+    <div class="inline"><button class="primary" onclick="addWorker()">Add worker</button></div>
+    <div class="divider"></div>
+    <div id="wlist"></div>
+  </div>`);
+
+  const wlist = $('#wlist');
+  wlist.innerHTML = state.workers.map(w=>`<div class="item inline" style="justify-content:space-between">
+    <div>
+      <div><b>${w.name}</b> <span class="chip">${w.roleTags.join(', ')}</span> <span class="chip">${w.distanceKm} km</span> <span class="chip">$${w.rate}/h</span></div>
+      <small>POS: ${w.pos.join(', ')||'—'} • Traits: ${w.preferredTraits.join(', ')||'—'} • Buckets R:${w.bucket.reliability.toFixed(1)} C:${w.bucket.communication.toFixed(1)} W:${w.bucket.work.toFixed(1)} P:${w.bucket.personality.toFixed(1)}</small>
+    </div>
+    <div class="inline">
+      <button onclick="nudge('${w.id}','up')">+vouch</button>
+      <button onclick="nudge('${w.id}','down')" class="danger">-penalty</button>
+    </div>
+  </div>`).join('');
+
+  // Restaurants list + quick add
+  root.append(html`<div class="card half">
+    <h3>Restaurants</h3><div class="divider"></div>
+    <div class="row">
+      <div><label>Name</label><input id="rn" placeholder="Venue name"></div>
+      <div><label>Suburb</label><input id="rs" placeholder="Bondi"></div>
+    </div>
+    <div class="row">
+      <div><label>Needs (comma)</label><input id="rr" placeholder="Server, Host"></div>
+      <div><label>Notes</label><input id="rt" placeholder="Busy weekends"></div>
+    </div>
+    <div class="inline"><button class="primary" onclick="addRestaurant()">Add restaurant</button></div>
+    <div class="divider"></div>
+    <div id="rlist"></div>
+  </div>`);
+  const rlist=$('#rlist');
+  rlist.innerHTML = state.restaurants.map(r=>`<div class="item inline" style="justify-content:space-between">
+    <div><b>${r.name}</b> • ${r.suburb} <small class="muted">needs: ${r.needs.join(', ')||'—'}</small></div>
+    <div class="inline"><button onclick="delRest('${r.id}')" class="danger">Delete</button></div>
+  </div>`).join('');
+}
+
+window.nudge=(wid,dir)=>{const data=store.read(); const w=data.workers.find(x=>x.id===wid); const delta = dir==='up'?0.1:-0.1; ['reliability','communication','work','personality'].forEach(b=>w.bucket[b]+=delta); store.write(data);};
+window.delRest=(rid)=>{const data=store.read(); data.restaurants = data.restaurants.filter(r=>r.id!==rid); store.write(data);} 
+window.addWorker=()=>{const data=store.read(); const name=$('#wn').value.trim(); if(!name) return alert('Name required'); const w={id:uid(),name,roleTags:splitCSV($('#wr').value||'Server'),bucket:{reliability:4.0,communication:4.0,work:4.0,personality:4.0},pos:splitCSV($('#wp').value),distanceKm:Number($('#wd').value||5),rate:Number($('#ww').value||27),preferredTraits:splitCSV($('#wt').value),availability:[],ratingCount:0,headshot:'',bio:''}; data.workers.push(w); store.write(data); };
+window.addRestaurant=()=>{const data=store.read(); const r={id:uid(),name:$('#rn').value||'New Venue',suburb:$('#rs').value||'',needs:splitCSV($('#rr').value),notes:$('#rt').value||''}; data.restaurants.push(r); store.write(data); };
+
+/***** Tiny helpers *****/
+function splitCSV(s){return (s||'').split(',').map(x=>x.trim()).filter(Boolean)}
+function html(strings,...values){const str=String.raw({raw:strings},...values); const div=document.createElement('div'); div.innerHTML=str; return div.firstElementChild||div;}
+
+/***** Modal for rating *****/
+function modalRate({title,onSubmit}){
+  const host=document.createElement('div'); host.style.position='fixed'; host.style.inset='0'; host.style.background='rgba(0,0,0,.6)'; host.style.display='grid'; host.style.placeItems='center'; host.style.zIndex=50;
+  host.innerHTML=`<div class="card" style="max-width:520px">
+    <h3>${title}</h3><div class="divider"></div>
+    <div class="row">
+      <div><label>Reliability (1–5)</label><input id="b_rel" type="number" min="1" max="5" value="5"></div>
+      <div><label>Communication (1–5)</label><input id="b_com" type="number" min="1" max="5" value="5"></div>
+    </div>
+    <div class="row">
+      <div><label>Work Quality (1–5)</label><input id="b_work" type="number" min="1" max="5" value="5"></div>
+      <div><label>Personality (1–5)</label><input id="b_per" type="number" min="1" max="5" value="5"></div>
+    </div>
+    <div class="inline" style="margin-top:8px"><input id="b_vouch" type="checkbox"><label for="b_vouch" style="margin:0">Vouch this worker</label></div>
+    <div class="inline" style="margin-top:12px;justify-content:flex-end">
+      <button onclick="this.closest('.card').parentElement.remove()">Cancel</button>
+      <button class="primary" id="rate_submit">Submit</button>
+    </div>
+  </div>`;
+  document.body.appendChild(host);
+  host.querySelector('#rate_submit').onclick=()=>{
+    const vals={
+      reliability:Number(host.querySelector('#b_rel').value||5),
+      communication:Number(host.querySelector('#b_com').value||5),
+      work:Number(host.querySelector('#b_work').value||5),
+      personality:Number(host.querySelector('#b_per').value||5),
+      vouch:host.querySelector('#b_vouch').checked
+    };
+    host.remove(); onSubmit(vals);
+  };
+}
+
+/***** Boot *****/
+store.init();
+render('post');
+</script>
+</body>
+</html>
